@@ -9,8 +9,11 @@ let picture = new cv.imread(directoryPath+imagename);
 let keypoints = orbDetector.detect(picture);
 let descriptors = orbDetector.compute(picture, keypoints);
 let newPic = new pictureData();
+let cC = cv.imencode('.jpg', descriptors).toString('base64');
+console.log(cC);
 newPic.name = imagename;
 newPic.keypoints = keypoints;
 newPic.descriptors = descriptors;
+newPic.encoded = cC;
 newPic.save();
 }

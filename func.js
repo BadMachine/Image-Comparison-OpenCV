@@ -1,17 +1,20 @@
-const cv = require('opencv4nodejs');
-const comp = require('./compare.js');
-const path = require('path');
-const fs = require('fs');
+const cv = require('opencv4nodejs'); // OpenCV for NodeJS
+const comp = require('./compare.js'); //user function for comparing pictures with keypoint data and descriptors
+const baseEnc = require('./base64enc.js');
+const compTest = require('./compareTest.js'); //user function for comparing pictures with keypoint data and descriptors
+const path = require('path'); //
+const fs = require('fs'); //compare
 const mongoose = require('mongoose'); //mongoose client
-const Mconf = require('./config/mongooseConfig');
-const bodyParser = require('body-parser');
-const express = require('express');
-const writeNewImage = require('./extrudePntsAndDsk.js');
-var app = require('express')();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+const Mconf = require('./config/mongooseConfig'); // mongoose client settings
+const bodyParser = require('body-parser'); // needs to easy get data prom POST
+const express = require('express'); // Express Framework
+const pictureData = require('./models/pic_data');  // Mongoose Schema for pics data
+const writeNewImage = require('./extrudePntsAndDsk.js'); // function for extruding keypoints and descriptors
+var app = require('express')();                      // init server with Express
+var server = require('http').Server(app);          // init Http server
+var io = require('socket.io')(server);   //init server with Socket
 const multer = require('multer');
-
+let dataArr = [];                     // data from DB
 const Storage = multer.diskStorage({
      destination: function(req, file, callback) {
          callback(null, "./uploads/images");
@@ -26,10 +29,21 @@ const upload = multer({
   }).array("photos", 50); //Field name and max count
 
 
-const uri = "mongodb+srv://Sylar:BreakingBad1@cluster0-meybi.mongodb.net/pictures?retryWrites=true&w=majority";
+const uri = "mongodb+srv://Sylar:BreakingBad1@cluster0-meybi.mongodb.net/pictures?retryWrites=true&w=majority";  //connecting to db, grabbing data from collection
 const db = mongoose.connect(uri,Mconf, (err,db)=>{
     if (err) return console.log(err);
+  pictureData.find()
+         .then(obj => {
+             for (var i = 0; i <obj.length; i++) {
+                 dataArr.push(obj[i]);
+             }
+             console.log("Data grabbed from db");
+         })
+         .catch(error => {
+             console.log(error);
+         })
     console.log('Connected to DB');
+
 
 });
 
@@ -94,6 +108,25 @@ console.log("started");
 
 
 
+setTimeout(()=>{
+  pictureData.find({name: "home.jpg"})
+         .then(obj => {
+
+          console.log(obj[0].descriptors);
+          console.log(dataArr.length);
+          let a = compTest(obj[0], dataArr);
+          console.log(a);
+
+         })
+         .catch(error => {
+             console.log(error);
+         })
+
+
+}, 3000);
+
+
+//let result = compTest('../main/pyr6.jpg', imagesToCompare);
 
 
 
@@ -101,9 +134,8 @@ console.log("started");
 
 
 
-
-let imagesToCompare = [];
-imagesToCompare = fs.readdirSync(directoryPath);
-console.log(imagesToCompare)
-
-let result = comp('../main/pyr6.jpg', imagesToCompare);
+// let imagesToCompare = [];
+// imagesToCompare = fs.readdirSync(directoryPath);
+// console.log(imagesToCompare)
+//
+// let result = comp('../main/pyr6.jpg', imagesToCompare);

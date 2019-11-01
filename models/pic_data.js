@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const cv = require('opencv4nodejs');
 
 var PicSchema = new mongoose.Schema({
     name: {
@@ -7,11 +8,14 @@ var PicSchema = new mongoose.Schema({
         required: true
     },
     keypoints: {
-         type: Array
+         type: mongoose.Schema.Types.Mixed
     },
     descriptors: {
         type: mongoose.Schema.Types.Mixed
+    },
+    encoded: {
+        type: String
     }
 
 });
-module.exports = mongoose.model('pics_data', PicSchema);
+module.exports = mongoose.model('images_data', PicSchema);
