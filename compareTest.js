@@ -1,5 +1,5 @@
 const cv = require('opencv4nodejs');
-
+const baseEnc = require('./base64enc.js');
 
 module.exports = function getBestResult(inputData, DBdata){
 let bestResult = {
@@ -13,6 +13,12 @@ let bestResult = {
 };
 
 let input64 = inputData.encoded;
+//console.log(input64);
+//console.log("...............................");
+
+//let b = baseEnc.string64encode(JSON.stringify(inputData.keypoints));
+//console.log(b);
+
  let inpBuf = Buffer.from(input64, 'base64');
  let descriptors = cv.imdecode(inpBuf);
 let keypoints = inputData.keypoints;

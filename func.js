@@ -65,7 +65,7 @@ console.log("socket listening port 80")
 
 
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+  res.render('index');
 });
 
 app.get('/upload',(req,res)=>{
@@ -100,30 +100,37 @@ io.on('connection', function (socket) {
 //  socket.emit('news', { hello: 'world' });
 console.log("started");
   socket.on('send', function (data) {
-
-    console.log(data);
+let stringdata = data.split('...');
+let dataSet = {
+encoded:     stringdata[0],
+keypoints:   JSON.parse(Buffer.from(stringdata[1], 'base64').toString('ascii'))
+};
+let a = compTest(dataSet, dataArr);
+console.log(a);
+io.emit('result', {result: a});
+    //console.log(data);
   });
 
 });
 
 
 
-setTimeout(()=>{
-  pictureData.find({name: "home.jpg"})
-         .then(obj => {
-
-          console.log(obj[0].descriptors);
-          console.log(dataArr.length);
-          let a = compTest(obj[0], dataArr);
-          console.log(a);
-
-         })
-         .catch(error => {
-             console.log(error);
-         })
-
-
-}, 3000);
+// setTimeout(()=>{
+//   pictureData.find({name: "home.jpg"})
+//          .then(obj => {
+//
+//           console.log(obj[0].descriptors);
+//           console.log(dataArr.length);
+//           let a = compTest(obj[0], dataArr);
+//         //  console.log(a);
+//
+//          })
+//          .catch(error => {
+//              console.log(error);
+//          })
+//
+//
+// }, 3000);
 
 
 //let result = compTest('../main/pyr6.jpg', imagesToCompare);
